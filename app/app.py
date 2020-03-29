@@ -1,12 +1,16 @@
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
+import pandas as pd
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@localhost/CPG"
 # :5432 cut after localhost
 db = SQLAlchemy(app)
+
+
+
 
 #db = create_engine("postgresql://postgres:postgres@localhost:5432/CPG")
 class Reviews(db.Model):
@@ -44,12 +48,22 @@ class Reviews(db.Model):
 
 @app.route("/")
 def display_reviews():
-
+    # legacy - can remove. first demo used Class call to query data
     reviews = Reviews.query.limit(20).all()
 
+    # Focus on using SQLAlchemy ORM because it can pass the data to
+    # be manipulated for NLP
     
+    # create engine
+    engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
+    # connect to engine
+    conn = engine.connect()
+    # use pd read_sql to connect to sample table
+    data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn).head(20)
+    #print(data["review"].head())
 
-    return render_template("home.html", reviews=reviews)
+    # return a rendered html template and display the reviews
+    return render_template("home.html", data=data)
 
 
 if __name__ == '__main__':
