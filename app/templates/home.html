@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% for review in reviews %}
+        <h2>Profile Name: {{review.profile_name}} </h2>
+        <h3>Rating: {{review.stars[0]}} Star </h3>
+        <p>Review: {{review.review}}</p>
+    {% endfor %}
+
+
+</body>
+</html>
