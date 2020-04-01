@@ -1,17 +1,23 @@
 import pandas as pd
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
+import json
+import numpy as np
 
 ## Lambda functions ##
 ## ---------------- ##
 
 def star(rev):
-    return int(rev[0])
+    try:
+        num = int(rev[0])
+        return num
+    except:
+        None
 
 def helpful(rev):
-    rev = rev.split(' ')[0]
     
     try:
+        rev = rev.split(' ')[0]
         # the first element of the list is a number and we can directly return it
         num = int(rev)
         return num
@@ -24,13 +30,21 @@ def helpful(rev):
         # this review
         else:
             return 0
-        None
+
+
 def date(rev):
-    return pd.to_datetime(rev[33:])
+    date = pd.to_datetime(rev[33:])
+    return date
+
+def convTime(rev):
+    corr_date = rev-pd.offsets.MonthBegin(1) #rev is a string
+    return corr_date
+
 
 def word_count(rev):
     # tokenize
     return len(word_tokenize(rev))
+
 
 
 
@@ -78,18 +92,34 @@ def word_count(rev):
 #         None
 
 def etl(data):
-
+    d = {}
     # clean up dataframe with lambda functions defined above
-    data["stars"] = data.apply(lambda x: star(x["stars"]), axis=1)
-    data["helpful"] = data.apply(lambda x: helpful(x["helpful"]),axis=1)
-    data["review_date"] = data.apply(lambda x: date(x["review_date"]), axis=1)
-    data["word_count"] = data.apply(lambda x: word_count(x["review"]),axis=1)
-    #data['YearMonth'] = data.apply(lambda x: convTime(x["review_date"]),axis=1)
+    d["stars"] = list(data.apply(lambda x: star(x["stars"]), axis=1))
+    d["helpful"] = list(data.apply(lambda x: helpful(x["helpful"]),axis=1))
+    d["review_date"] = list(data.apply(lambda x: date(x["review_date"]), axis=1))
+    d["word_count"] = list(data.apply(lambda x: word_count(x["review"]),axis=1))
+    d['YearMonth'] = list(data.apply(lambda x: convTime(x["review_date"]),axis=1))
 
-    data['YearMonth'] = data['review_date'] - pd.offsets.MonthBegin(1)
+    #data['YearMonth'] = data['review_date'] - pd.offsets.MonthBegin(1)
+
+    # pandas df
+    return pd.DataFrame(d)
 
 
-    return data
+def gbReview(data):
+        # groupby
+    g = data.groupby('YearMonth')["stars"].mean()
+
+    # populate dictionary
+    # ===================   
+    ratings = {}
+    ratings["date"] = g.index.tolist()
+    ratings["avg_monthly"] = list(g) # mean rating over time grouped by month
+    ratings["histogram_values"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[0].tolist()
+    ratings["histogram_bins"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[1].tolist()
+    #ratings["most_helpful"] = data.iloc[data["helpful"].argmax(),5] 
+    
+    return ratings # return dict
 
 def text_emotion(df,column):
     
@@ -154,6 +184,5 @@ def monthlyEmotionAvg(df):
         # pd dataframe is not json serializable
         month_avg[col_name] = list(pd.DataFrame({"Date": date, "Emotion": emotions}).groupby("Date").mean()["Emotion"])#.plot(kind="line") 
     
-    
-    return month_avg # this is just returning a dictionary, not list of dictionary which is needed for JS
+    return json.dumps(month_avg) # this is just returning a dictionary, not list of dictionary which is needed for JS
 

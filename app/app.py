@@ -16,9 +16,9 @@ engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
 # connect to engine
 conn = engine.connect()
 # use pd read_sql to connect to sample table
-data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn)
+data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn) # refactor this: should be part of etl - add engine,conn as inputs
 
-
+## Consider making model package - for loading help with speed
 
 #db = create_engine("postgresql://postgres:postgres@localhost:5432/CPG")
 class Reviews(db.Model):
@@ -56,22 +56,7 @@ class Reviews(db.Model):
 
 @app.route("/")
 def display_reviews():
-    # legacy - can remove. first demo used Class call to query data
-    reviews = Reviews.query.limit(20).all()
-
-    # Focus on using SQLAlchemy ORM because it can pass the data to
-    # be manipulated for NLP
-
-    # create engine
-    engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
-    # connect to engine
-    conn = engine.connect()
-    # use pd read_sql to connect to sample table
-    data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn).head(20)
-    #print(data["review"].head())
-    data = etl.etl(data)
-    # return a rendered html template and display the reviews
-    return render_template("index.html", data=data)
+    return render_template("index.html")
 
 
 @app.route("/emotions")
@@ -89,27 +74,38 @@ def emotion():
 
     return jsonify(emotions)
 
+
+# @app.route("/ratings")
+# def ratings():
+#     # clean data
+#     d = etl.etl(data)
+
+#     # groupby
+#     g = data.groupby('YearMonth')["stars"].mean()
+
+#     # populate dictionary
+#     # ===================   
+#     ratings = {}
+#     ratings["date"] = g.index.tolist()
+#     ratings["avg_monthly"] = list(g) # mean rating over time grouped by month
+#     ratings["histogram_values"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[0].tolist()
+#     ratings["histogram_bins"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[1].tolist()
+#     ratings["most_helpful"] = data.iloc[data["helpful"].argmax(),5]
+#     return jsonify(ratings)
+
 @app.route("/ratings")
 def ratings():
     # clean data
     d = etl.etl(data)
+    # transformation
+    gb = etl.gbReview(d) # refactor with better function names e.g. data = load_transform()
 
-    # groupby
-    g = data.groupby('YearMonth')["stars"].mean()
-
-    # populate dictionary
-    # ===================   
-    ratings = {}
-    ratings["date"] = g.index.tolist()
-    ratings["avg_monthly"] = list(g) # mean rating over time grouped by month
-    ratings["histogram_values"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[0].tolist()
-    ratings["histogram_bins"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[1].tolist()
-    ratings["most_helpful"] = data.iloc[data["helpful"].argmax(),5]
-    return jsonify(ratings)
+    return jsonify(gb)
 
 
 @app.errorhandler(404)
 def page_not_found(e):
+    print(e)
     return render_template("404.html"), 404
 
 if __name__ == '__main__':
