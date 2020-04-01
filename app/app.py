@@ -1,7 +1,8 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import pandas as pd
+import etl
 
 app = Flask(__name__)
 
@@ -53,7 +54,7 @@ def display_reviews():
 
     # Focus on using SQLAlchemy ORM because it can pass the data to
     # be manipulated for NLP
-    
+
     # create engine
     engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
     # connect to engine
@@ -61,10 +62,25 @@ def display_reviews():
     # use pd read_sql to connect to sample table
     data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn).head(20)
     #print(data["review"].head())
-
+    data = etl.etl(data)
     # return a rendered html template and display the reviews
     return render_template("home.html", data=data)
 
+
+@app.route("/emotions")
+def emotion():
+
+    # create engine
+    engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
+    # connect to engine
+    conn = engine.connect()
+    # use pd read_sql to connect to sample table
+    data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn)
+
+    data = etl.etl(data)
+    emotions = etl.monthlyEmotionAvg(data)
+
+    return jsonify(emotions)
 
 if __name__ == '__main__':
     db.create_all()
