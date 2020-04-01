@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import pandas as pd
 import etl
+import numpy as np
 
 app = Flask(__name__)
 
@@ -10,6 +11,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@localhos
 # :5432 cut after localhost
 db = SQLAlchemy(app)
 
+# create engine
+engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
+# connect to engine
+conn = engine.connect()
+# use pd read_sql to connect to sample table
+data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn)
 
 
 
@@ -64,7 +71,7 @@ def display_reviews():
     #print(data["review"].head())
     data = etl.etl(data)
     # return a rendered html template and display the reviews
-    return render_template("home.html", data=data)
+    return render_template("index.html", data=data)
 
 
 @app.route("/emotions")
@@ -81,6 +88,29 @@ def emotion():
     emotions = etl.monthlyEmotionAvg(data)
 
     return jsonify(emotions)
+
+@app.route("/ratings")
+def ratings():
+    # clean data
+    d = etl.etl(data)
+
+    # groupby
+    g = data.groupby('YearMonth')["stars"].mean()
+
+    # populate dictionary
+    # ===================   
+    ratings = {}
+    ratings["date"] = g.index.tolist()
+    ratings["avg_monthly"] = list(g) # mean rating over time grouped by month
+    ratings["histogram_values"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[0].tolist()
+    ratings["histogram_bins"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[1].tolist()
+    ratings["most_helpful"] = data.iloc[data["helpful"].argmax(),5]
+    return jsonify(ratings)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
 
 if __name__ == '__main__':
     db.create_all()

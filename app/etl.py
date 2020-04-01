@@ -4,6 +4,7 @@ from nltk.stem.snowball import SnowballStemmer
 
 ## Lambda functions ##
 ## ---------------- ##
+
 def star(rev):
     return int(rev[0])
 
@@ -32,6 +33,50 @@ def word_count(rev):
     return len(word_tokenize(rev))
 
 
+
+# def star(rev):
+#     try:
+#         num = int(rev[0])
+#         return num
+#     except:
+#         None
+    
+# def helpful(rev):
+#     try:
+#         rev = rev.split(' ')[0]
+#         # the first element of the list is a number and we can directly return it
+#         num = int(rev)
+#         return num
+    
+#     except:
+#         # the first element of the list is the string 'one'
+#         if rev == "One":
+#             return 1
+#         # the list contains 'report abuse' which means there were no upvotes for
+#         # this review
+#         else:
+#             return 0
+#         None
+
+# def date(rev):
+#     try:
+#         abc = pd.to_datetime(rev[33:])
+#         return abc
+#     except:
+#         None
+
+# def word_count(rev):
+#     # tokenize
+#     return len(word_tokenize(rev))
+
+
+# def convTime(rev):
+#     try:
+#         corr_date = rev-pd.offsets.MonthBegin(1)
+#         return corr_date
+#     except:
+#         None
+
 def etl(data):
 
     # clean up dataframe with lambda functions defined above
@@ -39,6 +84,10 @@ def etl(data):
     data["helpful"] = data.apply(lambda x: helpful(x["helpful"]),axis=1)
     data["review_date"] = data.apply(lambda x: date(x["review_date"]), axis=1)
     data["word_count"] = data.apply(lambda x: word_count(x["review"]),axis=1)
+    #data['YearMonth'] = data.apply(lambda x: convTime(x["review_date"]),axis=1)
+
+    data['YearMonth'] = data['review_date'] - pd.offsets.MonthBegin(1)
+
 
     return data
 
