@@ -5,10 +5,11 @@ import pandas as pd
 import etl
 import numpy as np
 
+# instantiate app
 app = Flask(__name__)
 
+# config app
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@localhost/CPG"
-# :5432 cut after localhost
 
 # connect to SQLAlchemy
 db = SQLAlchemy(app)
@@ -18,7 +19,7 @@ engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
 
 ## Consider making model package - for loading help with speed
 
-    
+# home route    
 @app.route("/")
 def display_reviews():
     return render_template("index.html")
@@ -40,13 +41,13 @@ def display_reviews():
 #     return jsonify(emotions)
 
 
-
+# ratings route - this stores the data used during the API call
 @app.route("/ratings")
 def ratings():
     data, ratings_dict = etl.read_transform() # will want to eventually pass in table name for queries
     return jsonify(ratings_dict)
 
-
+# have custom error handler for 404 page
 @app.errorhandler(404)
 def page_not_found(e):
     print(e)
