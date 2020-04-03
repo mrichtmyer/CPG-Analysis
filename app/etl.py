@@ -91,7 +91,7 @@ def read_transform(table="eucerin_intensive_lotion",
     # populate dictionary containing all data to pass back to route
     ratings_dict = {}
     ratings_dict["review_date"] = list(data["review_date"])
-    ratings_dict["gb_date"] = gb.index.tolist()
+    ratings_dict["gb_date"] = gb.index.astype(str).tolist()
     ratings_dict["avg_monthly_rating"] = list(gb)
     ratings_dict["histogram_rating_values"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[0].tolist()
     ratings_dict["histogram_rating_bins"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[1].tolist()

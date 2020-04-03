@@ -22,7 +22,10 @@ engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
 # home route    
 @app.route("/")
 def display_reviews():
-    return render_template("index.html")
+    data, ratings_dict = etl.read_transform()
+    max_upvoted_review = ratings_dict["max_upvoted_review"] # return this value to use jinja templating
+    
+    return render_template("index.html", max_upvoted_review=max_upvoted_review)
 
 
 # @app.route("/emotions")
@@ -46,6 +49,11 @@ def display_reviews():
 def ratings():
     data, ratings_dict = etl.read_transform() # will want to eventually pass in table name for queries
     return jsonify(ratings_dict)
+
+@app.route("/max_helpful_review")
+def helpful():
+    data,ratings_dict = etl.read_transform()
+    return jsonify(ratings_dict["max_upvoted_review"])
 
 # have custom error handler for 404 page
 @app.errorhandler(404)
