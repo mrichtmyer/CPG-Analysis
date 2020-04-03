@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import pandas as pd
 import etl
+import emotions
 import numpy as np
 
 # instantiate app
@@ -24,24 +25,8 @@ engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
 def display_reviews():
     data, ratings_dict = etl.read_transform()
     max_upvoted_review = ratings_dict["max_upvoted_review"] # return this value to use jinja templating
-    
+
     return render_template("index.html", max_upvoted_review=max_upvoted_review)
-
-
-# @app.route("/emotions")
-# def emotion():
-
-#     # create engine
-#     engine = create_engine("postgresql://postgres:postgres@localhost/CPG")
-#     # connect to engine
-#     conn = engine.connect()
-#     # use pd read_sql to connect to sample table
-#     data = pd.read_sql("SELECT * FROM eucerin_intensive_lotion",conn)
-
-#     data = etl.etl(data)
-#     emotions = etl.monthlyEmotionAvg(data)
-
-#     return jsonify(emotions)
 
 
 # ratings route - this stores the data used during the API call
@@ -49,6 +34,15 @@ def display_reviews():
 def ratings():
     data, ratings_dict = etl.read_transform() # will want to eventually pass in table name for queries
     return jsonify(ratings_dict)
+
+@app.route("/emotions")
+def emotions():
+
+    # will have to modify this when we add filter funcitonality
+    df = pd.read_csv("data/emotion_csv/eucerin_intensive_lotion.csv")
+    df_dict = {col:df[col].tolist() for col in df}
+
+    return jsonify(df_dict)
 
 @app.route("/max_helpful_review")
 def helpful():
