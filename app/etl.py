@@ -72,6 +72,8 @@ def read_transform(table="eucerin_intensive_lotion",
     # read in raw data from PostgreSQL
     data = readData(table,engine)
     
+
+
     # transformations
     data["stars"] = data.apply(lambda x: extractStars(x["stars"]),axis=1)
     data["helpful"] = data.apply(lambda x: extractHelpful(x["helpful"]),axis=1)
@@ -82,6 +84,10 @@ def read_transform(table="eucerin_intensive_lotion",
     # perform groupby on month to get aggregate data
     gb = data.groupby('corr_date')["stars"].mean()
     
+    # find review with maximum upvoted comments
+    idx = data["helpful"].argmax()
+    max_upvoted_review = data["review"][idx]
+
     # populate dictionary containing all data to pass back to route
     ratings_dict = {}
     ratings_dict["review_date"] = list(data["review_date"])
@@ -89,7 +95,7 @@ def read_transform(table="eucerin_intensive_lotion",
     ratings_dict["avg_monthly_rating"] = list(gb)
     ratings_dict["histogram_rating_values"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[0].tolist()
     ratings_dict["histogram_rating_bins"] = np.histogram(data["stars"], bins=[1,2,3,4,5,6])[1].tolist()
-    
+    ratings_dict["max_upvoted_review"] = max_upvoted_review
     
     return data, ratings_dict
 

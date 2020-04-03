@@ -38,22 +38,49 @@ d3.json(url).then(function(data){
     //     })
     //     .attr("class", "bar");
 
+    console.log(data)
+
     var trace = {
-        //x: data.histogram_bins,
-        y: d=>d.histogram_values,
-        type: 'histogram',
+        x: data.histogram_rating_bins,
+        y: data.histogram_rating_values,
+        type: 'bar',
+        marker:{
+            color: ['rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)','rgba(30,38,204,0.8)']
+          }
+      };
+
+    var d = [trace];
+    var layout = {
+        title: 'Product Rating',
+        width: 300,
+        height: 300
+    }
+    Plotly.newPlot('left', d, layout);
+
+
+
+    var trace = {
+        x: data.gb_date,
+        y: data.avg_monthly_rating,
+        type: 'line',
         // marker:{
-        //     color: ['rgba(204,204,204,1)', 'rgba(222,45,38,0.8)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)']
+        //     color: ['rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)', 'rgba(204,204,204,1)','rgba(30,38,204,0.8)']
         //   }
       };
 
     var d = [trace];
     var layout = {
-        title: 'Histogram Chart',
+        title: 'Average Rating Over Time',
         width: 300,
-        height: 300
+        height: 300,
+        yaxis: { 
+            tickcolor: '#000',
+            range: [0,6]
+
+        }
+
     }
-    Plotly.newPlot('left', d, layout);
+    Plotly.newPlot('middle', d, layout);
 
 
 
