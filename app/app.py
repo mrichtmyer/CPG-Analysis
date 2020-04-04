@@ -35,6 +35,8 @@ def ratings():
     data, ratings_dict = etl.read_transform() # will want to eventually pass in table name for queries
     return jsonify(ratings_dict)
 
+
+
 @app.route("/emotions")
 def emotions():
 
@@ -44,16 +46,31 @@ def emotions():
 
     return jsonify(df_dict)
 
+
+
 @app.route("/max_helpful_review")
 def helpful():
     data,ratings_dict = etl.read_transform()
     return jsonify(ratings_dict["max_upvoted_review"])
+
+
+@app.route("/about_me")
+def about_me():
+    return render_template("about_me.html")
+
+@app.route("/algorithms")
+def algorithms():
+    return render_template("algorithms.html")
+
 
 # have custom error handler for 404 page
 @app.errorhandler(404)
 def page_not_found(e):
     print(e)
     return render_template("404.html"), 404
+
+
+
 
 if __name__ == '__main__':
     db.create_all()

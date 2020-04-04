@@ -8,7 +8,42 @@
 
 </div>
 
+<div class="container">
+    <div class="row">
+      <div class="col-sm" id="top-left">
+          <h3>Product Image</h3>
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRS3JDodHtkAu5SRRmfZbsWBghqaN7tsWcxlKOllvYx5uMIko0YXvm13UQmV-_2iB55AOXWGfU&usqp=CAc" alt="Image Not Found" height=300>
+      </div>
 
+      <div class="col-sm" id="top-middle">
+        <h3>Product Description</h3>
+        <ul>
+            <li>3-dimensional system moisturizes, exfoliates and conditions very dry, flaky skin</li>
+            <li>Enriched with Natural Moisturizing Factors that are found naturally in skin</li>
+            <li>Immediately restores skin’s radiance</li>
+            <li>Delivers 24 hour hydration, Fragrance and dye free</li>
+        </ul>
+      </div>
+      <div class="col-sm" id="top-right">
+        <h3>Product Price: </h3>
+        <p>$8.97</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm" id="space">
+
+      </div>
+      <div class="col-sm" id="space">
+
+      </div>
+      <div class="col-sm" id="space">
+
+      </div>
+    </div>
+  </div>
 
 
 <div class="container">
@@ -20,12 +55,87 @@
 
       </div>
       <div class="col-sm" id="right">
-        <h2>The most upvoted review is: </h2>
+        <h3>The most upvoted review is: </h3>
         <p>{{ max_upvoted_review }}</p>
       </div>
     </div>
   </div>
 
+  <div class="container">
+    <div class="row">
+      <div class="col-sm" id="space">
+
+      </div>
+      <div class="col-sm" id="space">
+
+      </div>
+      <div class="col-sm" id="space">
+
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm" id="bottom-left">
+
+      </div>
+      <div class="col-sm" id="bottom-middle">
+
+      </div>
+      <div class="col-sm" id="bottom-right">
+
+      </div>
+    </div>
+  </div>
+
+
+<div style="width: 50%; margin: 0 auto;">
+    <h3>Radar Plot: Visualizing Select Emotional Trends</h3>
+    <canvas id="radar-chart" width="100" height="100"></canvas>
+  
+    <script>
+        new Chart(document.getElementById("radar-chart"), {
+      type: 'radar',
+      data: {
+        labels: ["Anger", "Anticipation", "Disgust", "Fear", "Joy", "Negative", "Positive", "Sadness", "Surprise", "Trust"],
+        datasets: [
+          {
+            label: "Max Positive Score",
+            fill: true,
+            backgroundColor: "rgba(179,181,198,0.2)",
+            borderColor: "rgba(179,181,198,1)",
+            pointBorderColor: "#fff",
+            pointBackgroundColor: "rgba(179,181,198,1)",
+            data: [0, 1.29266055, 0, 0, 1.29266055, 0, 1.938990826, 0, 0.646330275, 1.29266055]
+          }, {
+            label: "Max Negative Score",
+            fill: true,
+            backgroundColor: "rgba(255,99,132,0.2)",
+            borderColor: "rgba(255,99,132,1)",
+            pointBorderColor: "#fff",
+            pointBackgroundColor: "rgba(255,99,132,1)",
+            pointBorderColor: "#fff",
+            data: [0, 0.695412844, 0.347706422, 0, 0, 1.043119266, 0, 0, 0, 0]
+          }
+        ]
+      },
+      options: {
+        title: {
+          display: true,
+          text: 'Co-occuring emotions with Highly Positive and Negative Reviews'
+        }
+      }
+  });
+  
+  
+  
+  
+    </script>
+
+</div>
+
+  
 
 
 {% endblock %}
